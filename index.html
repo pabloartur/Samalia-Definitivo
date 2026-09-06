@@ -736,17 +736,18 @@ const CONFIG = {
     { id: 'pedicure',   nome: 'Pedicure completa',      desc: 'Pés renovados, cutícula e esmaltação.',        preco: 55,  duracao: 50,  tag: 'Pés' }
   ],
 
-  // ██ SUPABASE ██ — cole aqui as 2 chaves do seu projeto (veja GUIA-SUPABASE.md).
-  // A "anonKey" é pública por natureza: pode ficar no arquivo sem problema.
-  // Enquanto estiver com os valores de exemplo, o site roda em MODO DEMONSTRAÇÃO
-  // (tudo salvo só neste navegador, sem segurança real).
+  // ██ SUPABASE ██ — chaves do projeto (a "anonKey" é pública por natureza, pode ficar aqui).
+  // Projeto: pabloartur's Project (região sa-east-1). Ver GUIA-SUPABASE.md.
   supabase: {
-    url: 'https://SEU-PROJETO.supabase.co',
-    anonKey: 'SUA_CHAVE_ANON_PUBLICA'
+    url: 'https://emojoleiwysbcubumwoj.supabase.co',
+    anonKey: 'sb_publishable_x-AacqlyMRlP0JH13w28Bg_z_hCqCd6'
   },
 
-  // Usado APENAS no modo demonstração (sem Supabase). Depois de configurar
-  // o Supabase, o login do admin passa a ser por e-mail + senha reais.
+  // Login do painel (Supabase). "emailSugerido" só preenche o campo de e-mail
+  // automaticamente pra você digitar só a senha — pode trocar/limpar quando quiser.
+  admin: { emailSugerido: 'sousasamalia2@gmail.com' },
+
+  // Usado APENAS no modo demonstração (sem Supabase configurado).
   demo: { senhaAdmin: 'samalia' },
 
   seguranca: {
@@ -1170,10 +1171,8 @@ function preencherLocal() {
 /* ---------- aviso de configuração ---------- */
 let DEMO_BLOQUEIO_CONFIG = false;
 function avisoConfig() {
-  if (!DEMO) return;
-  $('#aviso-config').innerHTML = `<div class="aviso-cx demo"><b>Modo demonstração</b>
-    Os agendamentos ficam salvos só neste navegador e o painel não tem segurança real.
-    Para ativar de verdade (banco na nuvem + login protegido), siga o <b>GUIA-SUPABASE.md</b> e cole suas chaves na configuração.</div>`;
+  // aviso de "modo demonstração" removido a pedido; o modo demo continua funcionando igual.
+  $('#aviso-config').innerHTML = '';
 }
 
 /* ============================================================
@@ -1211,7 +1210,6 @@ function renderLoginAviso() {
   const o = lockInfo();
   const rest = o.until - Date.now();
   let html = '';
-  if (DEMO) html += `<div class="aviso-cx demo"><b>Modo demonstração</b>Sem Supabase configurado: entre com a senha de demonstração definida em <code>CONFIG.demo.senhaAdmin</code>. Isso <b>não é seguro</b> para uso real.</div>`;
   if (rest > 0) html += `<div class="aviso-cx erro"><b>Muitas tentativas</b>Login bloqueado por mais ${Math.ceil(rest / 60000)} min.</div>`;
   box.innerHTML = html;
   $('#campo-email').style.display = DEMO ? 'none' : '';
@@ -1219,6 +1217,9 @@ function renderLoginAviso() {
 }
 
 function bindLogin() {
+  if (!DEMO && CONFIG.admin?.emailSugerido && !$('#l-email').value) {
+    $('#l-email').value = CONFIG.admin.emailSugerido;
+  }
   $('#form-login').addEventListener('submit', async e => {
     e.preventDefault();
     if (renderLoginAviso()) return;
@@ -1240,7 +1241,7 @@ function bindLogin() {
 async function abrirPainel() {
   $('#admin-login').classList.add('oculto');
   $('#admin-painel').classList.remove('oculto');
-  if (DEMO) $('#painel-aviso').innerHTML = `<div class="aviso-cx demo"><b>Modo demonstração</b>Dados só deste navegador. Configure o Supabase (GUIA-SUPABASE.md) para uso real e seguro.</div>`;
+  $('#painel-aviso').innerHTML = '';
   armarInatividade();
   clearInterval(autoRefresh);
   autoRefresh = setInterval(carregarPainel, 45000);
